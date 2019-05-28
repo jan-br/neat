@@ -6,14 +6,16 @@ public class Gene {
   private final GeneType geneType;
   private float charge = 0;
   private float bias = 1;
+  private final int id;
 
-  protected Gene(Genome genome, GeneType geneType) {
+  protected Gene(Genome genome, GeneType geneType, int id) {
     this.genome = genome;
     this.geneType = geneType;
+    this.id = id;
   }
 
   public float getOutput() {
-    return (float) (1 / (1 + Math.exp(-this.charge)));
+    return this.genome.getActivationFunction().apply(this.charge);
   }
 
   public void input(float value) {
@@ -22,6 +24,15 @@ public class Gene {
       this.genome
           .getConnectionsToNextLayer(this)
           .forEach(geneConnection -> geneConnection.input(this.getOutput()));
+      this.charge = 0;
     }
+  }
+
+  public GeneType getGeneType() {
+    return geneType;
+  }
+
+  public int getId() {
+    return id;
   }
 }

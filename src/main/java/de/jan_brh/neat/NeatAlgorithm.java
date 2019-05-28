@@ -1,28 +1,43 @@
 package de.jan_brh.neat;
 
-import com.google.common.base.Supplier;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import de.jan_brh.neat.network.Gene;
+import de.jan_brh.neat.network.GeneType;
+import de.jan_brh.neat.network.Genome;
+import de.jan_brh.neat.network.GenomePrinter;
 
 import java.util.Collection;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
 public final class NeatAlgorithm {
 
-  private final Supplier<Float> neatTask;
+  private final Collection<Genome> genomes = new CopyOnWriteArrayList<>();
+  private final Function<NeatInputAdapter, Float> neatTask;
   private final Runnable clearAction;
   private final Runnable initAction;
+  private final Function<Float, Float> activationFunction;
   private final int parallelRuns;
+  private final int inputs;
+  private final int outputs;
   private boolean running;
 
   protected NeatAlgorithm(
-      Supplier<Float> neatTask, Runnable clearAction, Runnable initAction, int parallelRuns) {
+      Function<NeatInputAdapter, Float> neatTask,
+      Runnable clearAction,
+      Runnable initAction,
+      Function<Float, Float> activationFunction,
+      int parallelRuns,
+      int inputs,
+      int outputs) {
     this.neatTask = neatTask;
     this.clearAction = clearAction;
     this.initAction = initAction;
+    this.activationFunction = activationFunction;
     this.parallelRuns = parallelRuns;
+    this.inputs = inputs;
+    this.outputs = outputs;
   }
 
   public void start() {
@@ -33,12 +48,33 @@ public final class NeatAlgorithm {
     listeningExecutorService.execute(
         () -> {
           this.initAction.run();
+          for (int i = 0; i < this.parallelRuns; i++) {
+            Genome genome = new Genome(this.activationFunction);
+            for (int j = 0; j < this.inputs; j++) {
+              genome.addGene(GeneType.INPUT);
+            }
+            for (int j = 0; j < this.outputs; j++) {
+              genome.addGene(GeneType.OUTPUT);
+            }
+            this.genomes.add(genome);
+          }
+          for (Genome genome : genomes) {
+            for (Gene input : genome.getInputs()) {
+              for (Gene output : genome.getOutputs()) {
+                genome.addConnection(input, output, 1);
+              }
+            }
+          }
+          int counter = 0;
+          for (Genome genome : this.genomes) {
+            GenomePrinter.printGenome(genome, counter++ + "-genome.png");
+          }
+
           while (this.running) {
             CompletionService<Float> completionService =
                 new ExecutorCompletionService<>(listeningExecutorService);
-            for (int i = 0; i < this.parallelRuns; i++) {
-              completionService.submit(neatTask::get);
-            }
+            for (Genome genome : this.genomes)
+              completionService.submit(() -> this.neatTask.apply(genome::process));
 
             for (int i = 0; i < this.parallelRuns; i++) {
               try {
