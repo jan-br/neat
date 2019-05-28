@@ -62,7 +62,7 @@ public class GenomePrinter {
       Point outNode = nodeGenePositions.get(gene.getTo().getId());
 
       Point lineVector =
-          new Point((int) ((outNode.x - inNode.x) ), (int) ((outNode.y - inNode.y) * 0.99f));
+          new Point((outNode.x - inNode.x), (int) ((outNode.y - inNode.y) * 0.99f));
 
       g.drawLine(inNode.x, inNode.y, inNode.x + lineVector.x, inNode.y + lineVector.y);
       g.fillRect(
