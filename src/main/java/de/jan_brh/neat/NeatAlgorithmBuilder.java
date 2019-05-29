@@ -1,7 +1,6 @@
 package de.jan_brh.neat;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 
 import java.util.function.Function;
 
@@ -11,19 +10,17 @@ public class NeatAlgorithmBuilder {
   private Function<NeatInputAdapter, Float> neatTask;
   private Runnable initAction;
   private Runnable clearAction;
-  private int parallelRuns = 10;
+  private int generationSize = 10;
   private int inputs;
   private int outputs;
+  private float mutationRate = 0.3f;
+  private float addConnectionRate = 0.3f;
+  private float addNodeRate = 0.3f;
 
   private NeatAlgorithmBuilder() {}
 
   public NeatAlgorithmBuilder setNeatTask(Function<NeatInputAdapter, Float> neatTask) {
     this.neatTask = neatTask;
-    return this;
-  }
-
-  public NeatAlgorithmBuilder setParallelRuns(int parallelRuns) {
-    this.parallelRuns = parallelRuns;
     return this;
   }
 
@@ -52,6 +49,42 @@ public class NeatAlgorithmBuilder {
     return this;
   }
 
+  public NeatAlgorithmBuilder setGenerationSize(int generationSize) {
+    this.generationSize = generationSize;
+    return this;
+  }
+
+  public NeatAlgorithmBuilder setAddConnectionRate(float addConnectionRate) {
+    this.addConnectionRate = addConnectionRate;
+    return this;
+  }
+
+  public NeatAlgorithmBuilder setAddNodeRate(float addNodeRate) {
+    this.addNodeRate = addNodeRate;
+    return this;
+  }
+
+  public NeatAlgorithmBuilder setMutationRate(float mutationRate) {
+    this.mutationRate = mutationRate;
+    return this;
+  }
+
+  public float getAddConnectionRate() {
+    return addConnectionRate;
+  }
+
+  public float getAddNodeRate() {
+    return addNodeRate;
+  }
+
+  public float getMutationRate() {
+    return mutationRate;
+  }
+
+  public int getGenerationSize() {
+    return generationSize;
+  }
+
   public Runnable getClearAction() {
     return clearAction;
   }
@@ -62,10 +95,6 @@ public class NeatAlgorithmBuilder {
 
   public Function<NeatInputAdapter, Float> getNeatTask() {
     return neatTask;
-  }
-
-  public int getParallelRuns() {
-    return parallelRuns;
   }
 
   public int getInputs() {
@@ -85,17 +114,17 @@ public class NeatAlgorithmBuilder {
     Preconditions.checkNotNull(this.clearAction);
     Preconditions.checkNotNull(this.initAction);
     Preconditions.checkNotNull(this.activationFunction);
-    Preconditions.checkArgument(parallelRuns >= 1);
     Preconditions.checkArgument(this.inputs >= 1);
     Preconditions.checkArgument(this.outputs >= 1);
+    Preconditions.checkArgument(this.generationSize >= 1);
     return new NeatAlgorithm(
-        this.neatTask,
+        mutationRate, addConnectionRate, addNodeRate, this.neatTask,
         this.clearAction,
         this.initAction,
         this.activationFunction,
-        this.parallelRuns,
         this.inputs,
-        this.outputs);
+        this.outputs,
+        this.generationSize);
   }
 
   public static NeatAlgorithmBuilder newBuilder() {

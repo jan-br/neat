@@ -27,26 +27,26 @@ public class GenomePrinter {
     for (Gene gene : genome.getGenes()) {
       if (gene.getGeneType() == GeneType.INPUT) {
         float x =
-            ((float) gene.getId() / ((float) countNodesByType(genome, GeneType.INPUT) + 1f))
+            ((float) gene.getInnovation() / ((float) countNodesByType(genome, GeneType.INPUT) + 1f))
                 * imageSize;
         float y = imageSize - nodeSize / 2;
         g.fillOval((int) (x - nodeSize / 2), (int) (y - nodeSize / 2), nodeSize, nodeSize);
-        nodeGenePositions.put(gene.getId(), new Point((int) x, (int) y));
+        nodeGenePositions.put(gene.getInnovation(), new Point((int) x, (int) y));
       } else if (gene.getGeneType() == GeneType.HIDDEN) {
         int x = r.nextInt(imageSize - nodeSize * 2) + nodeSize;
         int y = r.nextInt(imageSize - nodeSize * 3) + (int) (nodeSize * 1.5f);
         g.fillOval(x - nodeSize / 2, y - nodeSize / 2, nodeSize, nodeSize);
-        nodeGenePositions.put(gene.getId(), new Point(x, y));
+        nodeGenePositions.put(gene.getInnovation(), new Point(x, y));
       } else if (gene.getGeneType() == GeneType.OUTPUT) {
         int x =
             (int)
-                (((float) (gene.getId() - countNodesByType(genome, GeneType.INPUT))
+                (((float) (gene.getInnovation() - countNodesByType(genome, GeneType.INPUT))
                         / ((float) countNodesByType(genome, GeneType.OUTPUT) + 1f))
                     * imageSize);
 
         int y = nodeSize / 2;
         g.fillOval(x - nodeSize / 2, y - nodeSize / 2, nodeSize, nodeSize);
-        nodeGenePositions.put(gene.getId(), new Point(x, y));
+        nodeGenePositions.put(gene.getInnovation(), new Point(x, y));
       }
     }
 
@@ -58,8 +58,8 @@ public class GenomePrinter {
       if (!gene.isEnabled()) {
         continue;
       }
-      Point inNode = nodeGenePositions.get(gene.getFrom().getId());
-      Point outNode = nodeGenePositions.get(gene.getTo().getId());
+      Point inNode = nodeGenePositions.get(gene.getFrom().getInnovation());
+      Point outNode = nodeGenePositions.get(gene.getTo().getInnovation());
 
       Point lineVector =
           new Point((outNode.x - inNode.x), (int) ((outNode.y - inNode.y) * 0.99f));
@@ -78,9 +78,9 @@ public class GenomePrinter {
 
     g.setColor(Color.WHITE);
     for (Gene nodeGene : genome.getGenes()) {
-      Point p = nodeGenePositions.get(nodeGene.getId());
+      Point p = nodeGenePositions.get(nodeGene.getInnovation());
       g.drawString(
-          "" + nodeGene.getId(), p.x - 3 * String.valueOf(nodeGene.getId()).length(), p.y + 5);
+          "" + nodeGene.getInnovation(), p.x - 3 * String.valueOf(nodeGene.getInnovation()).length(), p.y + 5);
     }
 
     try {
