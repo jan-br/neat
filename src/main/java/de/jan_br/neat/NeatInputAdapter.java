@@ -1,8 +1,8 @@
-package de.jan_brh.neat;
+package de.jan_br.neat;
 
 @FunctionalInterface
 public interface NeatInputAdapter {
 
-  float[] calculate(float[] inputs);
+  float[] process(float[] inputs);
 
 }
